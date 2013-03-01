@@ -45,43 +45,43 @@ fprintf( fid, '%s\n', ['#   Hz   ' par_type '  RI   R   ' num2str(ref)] );
 fprintf( fid, '%s\n', ['! ' comment] );
 
 if size( data, 1 ) == 1 || size( data, 1 ) >= 3
-    write_data_1();
+    write_data_1(data, fid, freq);
 elseif size( data, 1 ) == 2
-    write_data_2();
+    write_data_2(data, fid, freq);
 else
     error( 'FIXME - unhandled dimension' );
 end
 
 fclose( fid );
 return;
-
-    function write_data_1()
-    % for more than 3-port devices
-    for f=1:length(freq)
-        fprintf( fid, '%e ', freq(f) ); %Frequenz
-
-        for row = 1:num_rows
-            column = 1;
-            while column <= num_columns
-                for z=1:min( 4, num_columns-column+1 ); % nur maximal 4 Parameter in einer Zeile! (ADS-Begrenzung)
-                    fprintf( fid, '% e % e   ', real( data(row,column,f) ), imag( data(row,column,f) ) );
-                    column = column + 1;
-                end
-                fprintf( fid, '\n             ' ); % Zeilenende
-            end
-        end
-        fprintf( fid, '\n' );
-    end
-    end %write_data_1()
-
-    function write_data_2()
-    % for 2-port devices
-    % ADS uses different format (what a mess)
-    for f=1:length(freq)
-        fprintf( fid, '%e   % e % e   % e % e   % e % e   % e % e\n', freq(f), ...
-            real(data(1,1,f)), imag(data(1,1,f)), real(data(2,1,f)), imag(data(2,1,f)), ...
-            real(data(1,2,f)), imag(data(1,2,f)), real(data(2,2,f)), imag(data(2,2,f)) ); %Frequenz
-    end
-    end %write_data_2()
-
 end %write_touchstone()
+
+function write_data_1(data, fid, freq)
+num_rows = size( data, 1 );
+num_columns = size( data, 2 );
+% for more than 3-port devices
+for f=1:length(freq)
+    fprintf( fid, '%e ', freq(f) ); %Frequenz
+    for row = 1:num_rows
+        column = 1;
+        while column <= num_columns
+            for z=1:min( 4, num_columns-column+1 ); % nur maximal 4 Parameter in einer Zeile! (ADS-Begrenzung)
+                fprintf( fid, '% e % e   ', real( data(row,column,f) ), imag( data(row,column,f) ) );
+                column = column + 1;
+            end
+            fprintf( fid, '\n             ' ); % Zeilenende
+        end
+    end
+    fprintf( fid, '\n' );
+end
+end %write_data_1()
+
+function write_data_2(data, fid, freq)
+% for 2-port devices
+% ADS uses different format (what a mess)
+for f=1:length(freq)
+    fprintf( fid, '%e   % e % e   % e % e   % e % e   % e % e\n', freq(f), ...
+        real(data(1,1,f)), imag(data(1,1,f)), real(data(2,1,f)), imag(data(2,1,f)), ...
+        real(data(1,2,f)), imag(data(1,2,f)), real(data(2,2,f)), imag(data(2,2,f)) ); %Frequenz
+end
+end %write_data_2()
