@@ -24,9 +24,17 @@ end
 N = size(s,1);
 Nf = size(s,3);
 
+if (numel(Z0)==1)
+    Z0 = Z0*ones(N,1);
+end
+
 E = eye(N);
-Zref = E*Z0;
-G = E/sqrt(real(Z0));
+Zref = zeros(N,N);
+G = Zref;
+for n=1:N
+    Zref(n,n) = Z0(n);
+    G(n,n) = 1/sqrt(real(Z0(n)));
+end
 
 z=zeros(N,N,Nf); %preallocate
 
